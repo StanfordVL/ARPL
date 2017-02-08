@@ -1,2 +1,2 @@
-# Adversarial-Learning
+# Adversarial-Policies
 Reinforcement Learning algorithms that incorporate adversarial examples
