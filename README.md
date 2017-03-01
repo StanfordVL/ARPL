@@ -11,7 +11,8 @@ Policy learning in reinforcement learning has demonstrated success in scaling up
 ## Results
 
 ## References
-- [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**](). Ajay Mandlekar*, Yuke Zhu*, Animesh Garg, Li Fei-Fei, Silvio Savarese (* denotes equal contribution).
+- [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**]().  
+Ajay Mandlekar*, Yuke Zhu*, Animesh Garg, Li Fei-Fei, Silvio Savarese (* denotes equal contribution).  
 Under review at IEEE International Conference on Intelligent Robotics and Systems, (IROS) 2017
 
 ## Authors and Contributors
