@@ -12,10 +12,13 @@ fig, ax = plt.subplots()
 x = np.array(["nominal", "random\ndynamics", "random\nprocess", "random\nobservation", "adversarial\ndynamics", "adversarial\nprocess", "adversarial\nobservation"])
 
 y = np.array([2779.5, 1153.4, 1893.9, 1476.5, 1059.8, 448.6, 1703.5])
-y_std = np.array([736.4, 1136, 1466.8, 1324.4, 1074.4])
 
 sns.barplot(x, y, palette="Set3", ax=ax)
 ax.set_ylabel("Performance")
+
+# # TODO: replace this with real data
+# y_std = np.array([10, 10, 20, 20, 30, 30, 40]) * 10
+# ax.errorbar(np.arange(7), y, yerr=[y_std, y_std], fmt='.', capthick=2)
 
 # Finalize the plot
 sns.despine(bottom=False, left=False)
