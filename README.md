@@ -1,6 +1,6 @@
 # Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/L561cJh7DLE?autoplay=0&showinfo=0&controls=2&modestbranding=1&rel=0&theme=light" frameborder="10" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://youtu.be/yZ-gSsbbzh0" frameborder="10" allowfullscreen></iframe>
 \[Placeholder video -- deadline Mar 5\]
 
 ### Abstract
