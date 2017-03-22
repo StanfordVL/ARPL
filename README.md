@@ -1,8 +1,11 @@
 # Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
 
-### Demonstration (click to view)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yZ-gSsbbzh0?autoplay=0&showinfo=0&controls=2&modestbranding=1&rel=0&theme=light" frameborder="10" allowfullscreen></iframe>
 
+<!---
+### Demonstration (click to view)
 [![Advesarially Robust Policy Learning](https://img.youtube.com/vi/yZ-gSsbbzh0/0.jpg)](https://www.youtube.com/watch?v=yZ-gSsbbzh0)
+--->
 
 ### Abstract
 Policy learning in reinforcement learning has demonstrated success in scaling up problem size beyond toy examples. However, enabling these methods on real robots poses a challenge of both sample complexity during learning and safety against malicious intervention. Model-based method using simulated approximations of the target domains offer a possible solution, with the caveat that algorithms need to adapt across errors in modelling and adversarial perturbations. We introduce Adversarially Robust Policy Learning (ARPL) that leverage active construction of physically-plausible adversarial examples during training to enable sample-effiecient policy learning in source and resulting in a robust policy that performs well under both random perturbations as well as adversarial input manipulations. We further show that ARPL improves distance to uncontrollability in simplified environments, hence providing a justification for improved robustness in more complex environments. We evaluate our method on four tasks with continuous control and show superior performance of ARPL as compared to state-of-the-art robust policy learning methods.
