@@ -25,15 +25,15 @@ We investigate the effects of these 3 different types of noise in 4 Mujoco envir
 
 ### Results
 
-![fig1](figures/fig1.png)
+![fig1](https://stanfordrl.github.io/ARPL/figs/fig1.png)
 
-![fig2](figures//fig2.png)
+![fig2](https://stanfordrl.github.io/ARPL/figs/fig2.png)
 
-![fig3](figures/fig3.png)
+![fig3](https://stanfordrl.github.io/ARPL/figs/fig3.png)
 
-![fig4](figures//fig4.png)
+![fig4](https://stanfordrl.github.io/ARPL/figs/fig4.png)
 
-![table2](figures/table2.png)
+![table2](https://stanfordrl.github.io/ARPL/figs/table2.png)
 
 ### References
 - [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**]().  
