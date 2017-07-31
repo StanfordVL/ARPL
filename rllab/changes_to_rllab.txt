@@ -1,0 +1,34 @@
+Changes to rllab
+
+-added file adversarial_policy.py
+-modified rollout function in sampler/utils.py
+    -added calls to adversarial policy
+    -added capability to record the trajectory
+    -added control effort to return dict
+-modified sampler/parallel_sampler.py
+    -added function _worker_collect_one_path_rollout so that we can collect a certain number of trajectories
+    -modified function sample_paths to take argument that toggles between using each function to collect the paths
+-modified train function in algos/batch_polopt.py
+    -added tracking of mean/std rewards every learning iteration
+-modified BatchSampler in algos/batch_polopt.py
+    -added support for multiple sample workers
+    -added support for collecting a certain number of paths instead of collecting a certain number of samples
+-added some methods to normalized_env.py
+-added some methods to gym_env.py
+
+Changes to gym
+
+-added files for dynamic envs
+-register envs in mujoco/__init__.py, envs/__init__.py
+-modified original envs
+  -added set_state method, qpos_bounds
+-modified mujoco_env.py
+  -added project_state and project_dynamics methods
+-modified core.py
+  -NOTE: this might be the one causing issues...
+  -added get_random_config, get_dynamics_bounds, _set_state, state_vector methods to Wrapper class
+
+NOTE: not normalizing environments anymore...
+
+
+
