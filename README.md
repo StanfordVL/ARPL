@@ -1,3 +1,7 @@
+<script type="text/javascript"
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 # Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yZ-gSsbbzh0?autoplay=0&showinfo=0&controls=2&modestbranding=1&rel=0&theme=light" frameborder="10" allowfullscreen></iframe>
@@ -12,10 +16,6 @@ Policy search methods in reinforcement learning have demonstrated success in sca
 
 ### Methods
 We work with a physical dynamical system model:
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=x_{t&plus;1}&space;=&space;f(x_t,&space;u_t;&space;\mu)&space;&plus;&space;\nu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?x_{t+1}&space;=&space;f(x_t,&space;u_t;&space;\mu)&space;+&space;\nu" title="x_{t+1} = f(x_t, u_t; \mu) + \nu" /></a>
-
-
 $$
 x_{t+1} = f(x_t, u_t; \mu) + \nu
 $$
