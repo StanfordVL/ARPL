@@ -8,7 +8,7 @@
 --->
 
 ### Abstract
-Policy learning in reinforcement learning has demonstrated success in scaling up problem size beyond toy examples. However, enabling these methods on real robots poses a challenge of both sample complexity during learning and safety against malicious intervention. Model-based method using simulated approximations of the target domains offer a possible solution, with the caveat that algorithms need to adapt across errors in modelling and adversarial perturbations. We introduce Adversarially Robust Policy Learning (ARPL) that leverage active construction of physically-plausible adversarial examples during training to enable sample-effiecient policy learning in source and resulting in a robust policy that performs well under both random perturbations as well as adversarial input manipulations. We further show that ARPL improves distance to uncontrollability in simplified environments, hence providing a justification for improved robustness in more complex environments. We evaluate our method on four tasks with continuous control and show superior performance of ARPL as compared to state-of-the-art robust policy learning methods.
+Policy search methods in reinforcement learning have demonstrated success in scaling up to larger problems beyond toy examples. However, deploying these methods on real robots remains challenging due to the large sample complexity required during learning and their vulnerability to malicious intervention. We introduce Adversarially Robust Policy Learning (ARPL), an algorithm that leverages active computation of physically-plausible adversarial examples during training to enable robust policy learning in the source domain and robust performance under both random and adversarial input perturbations. We evaluate ARPL on four continuous control tasks and show superior resilience to changes in physical environment dynamics parameters and environment state as compared to state-of-the-art robust policy learning methods.
 
 ### Methods
 We work with a physical dynamical system model:
@@ -28,15 +28,15 @@ We investigate the effects of these 3 different types of noise in 4 Mujoco envir
 
 ### Results
 
-![fig1](https://stanfordrl.github.io/ARPL/figs/fig1.png)
+![fig1](https://stanfordvl.github.io/ARPL/figs/fig1.png)
 
-![fig2](https://stanfordrl.github.io/ARPL/figs/fig2.png)
+![fig2](https://stanfordvl.github.io/ARPL/figs/fig2.png)
 
-![fig3](https://stanfordrl.github.io/ARPL/figs/fig3.png)
+![fig3](https://stanfordvl.github.io/ARPL/figs/fig3.png)
 
-![fig4](https://stanfordrl.github.io/ARPL/figs/fig4.png)
+![fig4](https://stanfordvl.github.io/ARPL/figs/fig4.png)
 
-![table2](https://stanfordrl.github.io/ARPL/figs/table2.png)
+![fig5](https://stanfordvl.github.io/ARPL/figs/fig5.png)
 
 ### References
 - [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**]().  
