@@ -16,15 +16,12 @@ Policy search methods in reinforcement learning have demonstrated success in sca
 
 ### Methods
 We work with a physical dynamical system model:
-$$
-x_{t+1} = f(x_t, u_t; \mu) + \nu
-$$
 
-$$
-z_t = g(x_t) + \omega
-$$
+$$ s_{t+1} = f(s_t, a_t; \mu) + \nu $$
 
-Here, $x_t$ denotes the state of the system at time $t$, $u_t$ denotes the control, or action, applied at time $t$, $f$ models the transition function (dynamics) of the system, $\mu$ parametrizes $f$, $\nu$ models process noise, $g$ models the observation function of the system, and $\omega$ denotes observation noise. We introduce adversarial perturbations to 3 key components of this system - perturbations in the dynamics ($\mu$), the process ($\nu$), and the observation ($\omega$). 
+$$ o_t = g(s_t) + \omega $$
+
+Here, \\(x_t\\) denotes the state of the system at time \\(t\\), \\(a_t\\) denotes the control, or action, applied at time \\(t\\), \\(f\\) models the transition function (dynamics) of the system, \\(\mu\\) parametrizes \\(f\\), \\(\nu\\) models process noise, \\(g\\) models the observation function of the system, and \\(\omega\\) denotes observation noise. We introduce adversarial perturbations to 3 key components of this system - perturbations in the dynamics (\\(\mu\\)), the process (\\(\nu\\)), and the observation (\\(\omega\\)). 
 
 We refer to these respectively as **dynamics noise**, **process noise**, and **observation noise**. Dynamics noise refers to a perturbation in underlying system parameters such as mass or friction, while process noise and observation noise relate to direct perturbation of the state and observation. In order to produce these perturbations, we use a scaled version of the gradient of the loss function with respect to the state that the agent observes. This is easily achieved via backpropagation in the policy network.
 
