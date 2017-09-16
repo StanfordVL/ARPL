@@ -12,6 +12,10 @@ Policy search methods in reinforcement learning have demonstrated success in sca
 
 ### Methods
 We work with a physical dynamical system model:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=x_{t&plus;1}&space;=&space;f(x_t,&space;u_t;&space;\mu)&space;&plus;&space;\nu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?x_{t+1}&space;=&space;f(x_t,&space;u_t;&space;\mu)&space;+&space;\nu" title="x_{t+1} = f(x_t, u_t; \mu) + \nu" /></a>
+
+
 $$
 x_{t+1} = f(x_t, u_t; \mu) + \nu
 $$
