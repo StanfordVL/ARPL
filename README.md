@@ -39,7 +39,7 @@ We investigate the effects of these 3 different types of noise in 4 Mujoco envir
 ![fig5](https://stanfordvl.github.io/ARPL/figs/fig5.png)
 
 ### References
-- [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**]().  
+- [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**](https://stanfordvl.github.io/ARPL/arpl_mzg_iros17.pdf).  
   Ajay Mandlekar\*, Yuke Zhu\*, Animesh Garg*, Li Fei-Fei, Silvio Savarese (\* denotes equal contribution).  
   *Under review at IEEE International Conference on Intelligent Robotics and Systems, (IROS) 2017*
 
