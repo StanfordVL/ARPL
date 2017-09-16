@@ -1,6 +1,8 @@
-<script type="text/javascript"
-    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
+<head>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+</head>
 
 # Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
 
@@ -17,9 +19,9 @@ Policy search methods in reinforcement learning have demonstrated success in sca
 ### Methods
 We work with a physical dynamical system model:
 
-$$ s_{t+1} = f(s_t, a_t; \mu) + \nu $$
+\\[ s_{t+1} = f(s_t, a_t; \mu) + \nu \\]
 
-$$ o_t = g(s_t) + \omega $$
+\\[ o_t = g(s_t) + \omega \\]
 
 Here, \\(x_t\\) denotes the state of the system at time \\(t\\), \\(a_t\\) denotes the control, or action, applied at time \\(t\\), \\(f\\) models the transition function (dynamics) of the system, \\(\mu\\) parametrizes \\(f\\), \\(\nu\\) models process noise, \\(g\\) models the observation function of the system, and \\(\omega\\) denotes observation noise. We introduce adversarial perturbations to 3 key components of this system - perturbations in the dynamics (\\(\mu\\)), the process (\\(\nu\\)), and the observation (\\(\omega\\)). 
 
