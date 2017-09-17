@@ -1,9 +1,3 @@
-<head>
-    <script type="text/javascript"
-            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
-</head>
-
 # Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yZ-gSsbbzh0?autoplay=0&showinfo=0&controls=2&modestbranding=1&rel=0&theme=light" frameborder="10" allowfullscreen></iframe>
