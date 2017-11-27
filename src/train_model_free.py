@@ -7,7 +7,7 @@ This module is the main training module for training TRPO agents.
 from rllab.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.gym_env import GymEnv
-from rllab.policies.curriculum_policy import CurriculumPolicy
+from rllab.policies.model_free_adversarial_policy import ModelFreeAdversarialPolicy
 from rllab.policies.save_policy import saveModel, loadModel
 from rllab.sampler.utils import rollout
 
@@ -69,8 +69,10 @@ if __name__ == '__main__':
     # the agent number
     agent_num = args.agent_num
 
+    baseline = LinearFeatureBaseline(env_spec=env.spec)
+
     # define policy by reading from config class
-    policy = CurriculumPolicy(
+    policy = ModelFreeAdversarialPolicy(
         env_spec=env.spec,
         hidden_sizes=config.hidden_sizes,
         adaptive_std=config.adaptive_std,
@@ -87,12 +89,12 @@ if __name__ == '__main__':
         mask_augmentation=config.mask_augmentation,
     )
 
-    baseline = LinearFeatureBaseline(env_spec=env.spec)
+    
 
     if DEBUG:
         n_itr = 5
     else:
-        n_iter = 50
+        n_itr = 50
         # n_itr = config.num_iter
 
     algo = TRPO(

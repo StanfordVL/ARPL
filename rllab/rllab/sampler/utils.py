@@ -4,7 +4,8 @@ import time
 
 from rllab.policies.adversarial_policy import AdversarialPolicy
 from rllab.policies.curriculum_policy import CurriculumPolicy
-
+from rllab.policies.curriculum_policy import CurriculumPolicy
+from rllab.policies.model_free_adversarial_policy import ModelFreeAdversarialPolicy
 
 # note that curriculum is passed in due to scoping issues in accessing the agent's curriculum
 def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False, speedup=1,
@@ -17,6 +18,7 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
 
     # We only support adversarial policies ;)
     assert(isinstance(agent, AdversarialPolicy) or isinstance(agent, CurriculumPolicy))
+    # or isinstance(agent, ModelFreeAdversarialPolicy))
     agent.reset()
 
     # If doing curriculum learning, draw a configuration at random and set it

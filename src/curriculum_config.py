@@ -8,7 +8,7 @@ This file contains configurations for experiments with process noise.
 
 import numpy as np
 from config import Config
-from curriculum_config import CurriculumConfig
+from curriculum_config_org import CurriculumConfig
 
 curriculum_configs = []
 
