@@ -6,6 +6,7 @@ from rllab.policies.adversarial_policy import AdversarialPolicy
 from rllab.policies.curriculum_policy import CurriculumPolicy
 from rllab.policies.curriculum_policy import CurriculumPolicy
 from rllab.policies.model_free_adversarial_policy import ModelFreeAdversarialPolicy
+from rllab.policies.deterministic_mlp_curriculum_policy import DeterministicMLPCurriculumPolicy
 
 # note that curriculum is passed in due to scoping issues in accessing the agent's curriculum
 def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False, speedup=1,
@@ -17,13 +18,12 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
     env_infos = []
 
     # We only support adversarial policies ;)
-    assert(isinstance(agent, AdversarialPolicy) or isinstance(agent, CurriculumPolicy))
-    # or isinstance(agent, ModelFreeAdversarialPolicy))
+    assert(isinstance(agent, AdversarialPolicy) or isinstance(agent, CurriculumPolicy) or isinstance(agent, DeterministicMLPCurriculumPolicy))
     agent.reset()
 
     # If doing curriculum learning, draw a configuration at random and set it
     # for the remainder of the episode.
-    if isinstance(agent, CurriculumPolicy):
+    if isinstance(agent, CurriculumPolicy) or isinstance(agent, DeterministicMLPCurriculumPolicy):
         assert(curriculum is not None)
         agent.sample_from_curriculum(curriculum)
 
@@ -36,7 +36,6 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
 
     # Draw initial state from the environment.
     o = env.reset()
-
     # Set initial dynamics, if necessary.
     if agent.set_dynamics is not None:
         o = agent.set_adversarial_dynamics(env=env, full_state=o, dynamics=agent.set_dynamics)
@@ -44,7 +43,6 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
     # Apply adversarial update, if necessary.
     o = agent.do_perturbation(env=env, state=o, is_start=True, scale=None)
     #o = agent.do_perturbation(env=env, state=o, is_start=True, scale=1e-3)
-
     # Record the trajectory, if necessary.
     if agent.record_traj:
         qpos_traj = []
@@ -53,7 +51,6 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
         st_vec = env.state_vector()
         qpos_traj.append(st_vec[:nq])
         qvel_traj.append(st_vec[nq:])
-
     path_length = 0
     if animated:
         env.render()
@@ -86,7 +83,6 @@ def rollout(env, agent, max_path_length=np.inf, curriculum=None, animated=False,
             env.render()
             timestep = 0.05
             time.sleep(timestep / speedup)
-
     if animated and not always_return_paths:
         return
 

@@ -51,6 +51,15 @@ class CurriculumConfig(object):
         for config in self.curriculum_list:
             config.batch_size = batch_size
 
+    def print(self):
+        print('=======================')
+        counter = 0
+        for one_config in self.curriculum_list:
+            print('Config {}:'.format(counter))
+            one_config.print_params()
+            counter += 1
+        print('=======================')
+
 
 curriculum_configs = []
 

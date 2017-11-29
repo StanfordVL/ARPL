@@ -167,18 +167,18 @@ class BaseSampler(Sampler):
             self.algo.baseline.fit(paths)
         logger.log("fitted")
 
-        # if hasattr(self.algo.policy, 'qfunction'):
-        #     logger.log("fitting q function")
-        #     self.algo.policy.qfunction.fit(paths)
-        #     # for path in paths:
-        #     #     rewards = self.algo.policy.qfunction.predict(path)
-        #     #     for i, o in enumerate(path["observations"]):
-        #     #         a = path["actions"][i]
-        #     #         r = rewards[i]
-        #     #         print('o:{}, a:{}, q:{}, grad:{}'.format(o, a, r, self.algo.policy.qfunction.gradient(o, a)))
-        #     logger.log("fitted")
-        # else:
-        #     logger.log("Not fitting q function")
+        if hasattr(self.algo.policy, 'qfunction'):
+            logger.log("fitting q function")
+            self.algo.policy.qfunction.fit(paths)
+            for path in paths:
+                rewards = self.algo.policy.qfunction.predict(path)
+                for i, o in enumerate(path["observations"]):
+                    a = path["actions"][i]
+                    r = rewards[i]
+                    print('o:{}, a:{}, q:{}, grad:{}'.format(o, a, r, self.algo.policy.qfunction.gradient(o, a)))
+            logger.log("fitted")
+        else:
+            logger.log("Not fitting q function")
 
         logger.record_tabular('Iteration', itr)
         logger.record_tabular('AverageDiscountedReturn',

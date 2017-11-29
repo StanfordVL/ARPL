@@ -16,6 +16,7 @@ use_max_norm = False
 # phis to scan over
 phi_max = 0.5
 num_steps = 20
+num_steps = 3
 step_size = phi_max / num_steps
 phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
@@ -23,16 +24,16 @@ phi_array = np.arange(0.0, phi_max + step_size, step_size)
 def get_phi_configs(use_dynamics, observable_noise, random, eps):
     phi_configs = []
 
-    # baseline model (no adversarial training)
-    config0 = Config(adversarial=False,
-                     eps=eps,
-                     probability=-1.0,
-                     use_dynamics=False,
-                     random=False,
-                     observable_noise=False,
-                     use_max_norm=use_max_norm)
+    # # baseline model (no adversarial training)
+    # config0 = Config(adversarial=False,
+    #                  eps=eps,
+    #                  probability=-1.0,
+    #                  use_dynamics=False,
+    #                  random=False,
+    #                  observable_noise=False,
+    #                  use_max_norm=use_max_norm)
 
-    phi_configs.append(config0)
+    # phi_configs.append(config0)
 
     for phi in phi_array:
         phi_config = Config(adversarial=True,
@@ -56,3 +57,20 @@ for eps in [0.1, 0.01, 1.0, 10.0]:
             phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps)
             all_phi_configs.append(phi_configs)
 
+
+config0 = Config(adversarial=False,
+                 eps=eps,
+                 probability=-1.0,
+                 use_dynamics=False,
+                 random=False,
+                 observable_noise=False,
+                 use_max_norm=use_max_norm)
+all_phi_configs_ddpg = [config0]
+for eps in [0.1, 0.01, 1.0, 10.0]:
+    for observable_noise in [False, True]: # process noise, dynamics noise
+        use_dynamics = False # no observation noise
+        for random in [False, True]: # adversarial, random
+            phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps)
+            all_phi_configs_ddpg += list(phi_configs)
+
+# all_phi_configs_ddpg = [all_phi_configs_ddpg[len(all_phi_configs_ddpg) - 1]]

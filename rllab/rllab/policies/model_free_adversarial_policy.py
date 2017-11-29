@@ -18,6 +18,7 @@ import theano.tensor as TT
 import theano
 
 from rllab.baselines.linear_feature_q import LinearFeatureQ
+from rllab.q_functions.continuous_mlp_q_function import ContinuousMLPQFunction
 
 """
 This class implements an adversarial Gaussian MLP Policy that uses curriculum learning.

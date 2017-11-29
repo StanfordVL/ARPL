@@ -1,22 +1,27 @@
 """
 
-This module is the main training module for training TRPO agents.
+This module is the main training module for training DDPG agents.
 
 """
 
 from rllab.algos.trpo import TRPO
+from rllab.algos.ddpg import DDPG
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.gym_env import GymEnv
 from rllab.policies.model_free_adversarial_policy import ModelFreeAdversarialPolicy
 from rllab.policies.save_policy import saveModel, loadModel
 from rllab.sampler.utils import rollout
+from rllab.exploration_strategies.ou_strategy import OUStrategy
+from rllab.policies.deterministic_mlp_policy import DeterministicMLPPolicy
+from rllab.policies.deterministic_mlp_curriculum_policy import DeterministicMLPCurriculumPolicy
+from rllab.q_functions.continuous_mlp_q_function import ContinuousMLPQFunction
 
 from rllab.envs.normalized_env import normalize
 
 import argparse
 import numpy as np
-from curriculum_config import curriculum_configs
-from phi_config import all_phi_configs
+from curriculum_config import get_ddpg_curriculum_configs_cartpole
+from phi_config import all_phi_configs_ddpg
 from environments import dynamic_environments, original_environments
 
 import matplotlib as mpl
@@ -25,38 +30,24 @@ import matplotlib.pyplot as plt
 
 import sys
 from make_table import print_table_normal, init_doc, end_doc
+from multiprocessing import Pool
 
-# quick run for debugging
-DEBUG = False
-
-num_rollouts = 100
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Train your very own TRPO agent!')
-    parser.add_argument('env_ind', metavar='env_ind', type=int,
-                        help='index corresponding to environment name (see environments.py)')
-    parser.add_argument('config_num', metavar='config_num', type=int,
-                        help='configuration number (see curriculum_config.py)')
-    parser.add_argument('agent_num', metavar='agent_num', type=int,
-                        help='agent number (for file writing purposes)')
-    parser.add_argument('checkpoint_path', metavar='checkpoint_path', type=str,
-                        help='path to checkpoint (for file writing purposes)')
-
-    args = parser.parse_args()
-
+def train(env_ind, config_num, agent_num, checkpoint_path):
     # get the original state space size first
-    org_env = GymEnv(original_environments[args.env_ind])
+    print('[env_ind: {}, config_num: {}, agent_num: {}]: starting'.format(env_ind, config_num, agent_num))
+    org_env = GymEnv(original_environments[env_ind])
     org_env_size = org_env.observation_space.shape[0]
     org_env.terminate()
 
     # the environment
-    env = GymEnv(dynamic_environments[args.env_ind])
-    #env = normalize(GymEnv(dynamic_environments[args.env_ind]), normalize_obs=True)
-
+    env = GymEnv(dynamic_environments[env_ind])
+    curriculum_configs = get_ddpg_curriculum_configs_cartpole()
     # the configuration settings
-    curriculum_config = curriculum_configs[args.config_num]
+    curriculum_config = curriculum_configs[config_num]
+    # print('config: ')
+    # curriculum_config.print()
 
-    if args.env_ind == 0:
+    if env_ind == 0:
         # batch size for Inverted Pendulum
         curriculum_config.set_batch_size(5000)
     else:
@@ -67,15 +58,12 @@ if __name__ == '__main__':
     config = curriculum_config.curriculum_list[0]
 
     # the agent number
-    agent_num = args.agent_num
+    agent_num = agent_num
 
-    baseline = LinearFeatureBaseline(env_spec=env.spec)
-
-    # define policy by reading from config class
-    policy = ModelFreeAdversarialPolicy(
+    policy = policy = DeterministicMLPCurriculumPolicy(
         env_spec=env.spec,
-        hidden_sizes=config.hidden_sizes,
-        adaptive_std=config.adaptive_std,
+        # The neural network policy should have two hidden layers, each with 32 hidden units.
+        hidden_sizes=(32, 32),
         adversarial=config.adversarial,
         eps=config.eps,
         probability=config.probability,
@@ -89,50 +77,82 @@ if __name__ == '__main__':
         mask_augmentation=config.mask_augmentation,
     )
 
-    
+    qf = ContinuousMLPQFunction(
+        env_spec=env.spec,
+        action_merge_layer=-2,
+        )
 
-    if DEBUG:
-        n_itr = 5
-    else:
-        n_itr = 50
-        # n_itr = config.num_iter
+    es = OUStrategy(env_spec=env.spec, mu=0, theta=0.15, sigma=0.3)
 
-    algo = TRPO(
+
+    algo = DDPG(
         env=env,
         policy=policy,
-        baseline=baseline,
-        batch_size=config.batch_size,
-        max_path_length=env.horizon,
-        n_itr=n_itr,
-        discount=config.discount,
-        step_size=config.step_size,
-        gae_lambda=config.gae_lambda,
-        num_workers=config.num_workers,
+        es=es,
+        qf=qf,
+        batch_size=32,
+        max_path_length=100,
+        epoch_length=1000,
+        min_pool_size=10000,
+        n_epochs=config.num_iter,
+        discount=0.99,
+        scale_reward=0.01,
+        qf_learning_rate=1e-3,
+        policy_learning_rate=1e-4,
         plot_learning_curve=config.plot_learning_curve,
-        trial=agent_num,
-    )
+        )
     avg_rewards, std_rewards = algo.train()
 
-    print("training completed!")
-    saveModel(algo.policy,
-             args.checkpoint_path + '/' + 'policy_{}_config_{}_agent_{}'.format(dynamic_environments[args.env_ind], args.config_num, agent_num))
+    print('[env_ind: {}, config_num: {}, agent_num: {}]: training completed!'.format(env_ind, config_num, agent_num))
+
+    saveModel((algo.policy, algo.qf),
+             checkpoint_path + '/' + 'agent_{}_config_{}_agent_{}'.format(dynamic_environments[env_ind], config_num, agent_num))
 
     # save rewards per model over the iterations
     # also plot the rewards
     if config.plot_learning_curve:
-        saveModel([range(n_itr), avg_rewards, std_rewards],
-                  args.checkpoint_path + '/' + 'rewards_{}_config_{}_agent_{}'.format(dynamic_environments[args.env_ind], args.config_num, agent_num))
+        saveModel([range(config.num_iter), avg_rewards, std_rewards],
+                  checkpoint_path + '/' + 'rewards_{}_config_{}_agent_{}'.format(dynamic_environments[env_ind], config_num, agent_num))
         
         plt.figure()
-        plt.plot(range(n_itr), avg_rewards)
+        plt.plot(range(config.num_iter), avg_rewards)
         plt.title('Learning Curve')
-        plt.savefig(args.checkpoint_path + '/' + 'mr_{}_config_{}_agent_{}.png'.format(dynamic_environments[args.env_ind], args.config_num, agent_num))
+        plt.savefig(checkpoint_path + '/' + 'mr_{}_config_{}_agent_{}.png'.format(dynamic_environments[env_ind], config_num, agent_num))
         plt.close()
 
         plt.figure()
-        plt.plot(range(n_itr), std_rewards)
+        plt.plot(range(config.num_iter), std_rewards)
         plt.title('Learning Curve')
-        plt.savefig(args.checkpoint_path + '/' + 'stdr_{}_config_{}_agent_{}.png'.format(dynamic_environments[args.env_ind], args.config_num, agent_num))
+        plt.savefig(checkpoint_path + '/' + 'stdr_{}_config_{}_agent_{}.png'.format(dynamic_environments[env_ind], config_num, agent_num))
         plt.close()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Train your very own TRPO agent!')
+    parser.add_argument('env_ind', metavar='env_ind', type=int,
+                        help='index corresponding to environment name (see environments.py)')
+    # parser.add_argument('config_num', metavar='config_num', type=int,
+    #                     help='configuration number (see curriculum_config.py)')
+    parser.add_argument('--agent_num', metavar='agent_num', type=int, default=10,
+                        help='number of agents to train (for file writing purposes)')
+    parser.add_argument('checkpoint_path', metavar='checkpoint_path', type=str,
+                        help='path to checkpoint (for file writing purposes)')
+    parser.add_argument('--num_workers', metavar='number_of_workers', type=int, default=4,
+                        help='number of workers for the pool')
+
+    args = parser.parse_args()
+    print('args', args)
+    config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
+    # iterate over train configurations
+    p = Pool(args.num_workers)
+    res_coll = []
+    for train_config_num in config_nums:
+        for agent_num in range(args.agent_num):
+            res = p.apply_async(train, (args.env_ind, train_config_num, agent_num, args.checkpoint_path))
+            res_coll.append(res)
+    for res in res_coll:
+        res.get()
+    p.close()
+    p.join()
 
 

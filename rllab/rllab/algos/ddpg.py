@@ -11,6 +11,7 @@ import pickle as pickle
 import numpy as np
 import pyprind
 import lasagne
+from rllab.policies.deterministic_mlp_curriculum_policy import DeterministicMLPCurriculumPolicy
 
 
 def parse_update_method(update_method, **kwargs):
@@ -39,6 +40,7 @@ class SimpleReplayPool(object):
         self._bottom = 0
         self._top = 0
         self._size = 0
+
 
     def add_sample(self, observation, action, reward, terminal):
         self._observations[self._top] = observation
@@ -112,7 +114,8 @@ class DDPG(RLAlgorithm):
             scale_reward=1.0,
             include_horizon_terminal_transitions=False,
             plot=False,
-            pause_for_plot=False):
+            pause_for_plot=False,
+            plot_learning_curve=False):
         """
         :param env: Environment
         :param policy: Policy
@@ -185,6 +188,15 @@ class DDPG(RLAlgorithm):
 
         self.opt_info = None
 
+
+        # added, for curriculum learning
+        self.plot_learning_curve = plot_learning_curve
+        self.curriculum_list = None
+        self.curriculum = None
+        if isinstance(self.policy, DeterministicMLPCurriculumPolicy):
+            self.curriculum_list = list(self.policy.curriculum_list)
+            self.curriculum = []
+
     def start_worker(self):
         parallel_sampler.populate_task(self.env, self.policy)
         if self.plot:
@@ -192,6 +204,12 @@ class DDPG(RLAlgorithm):
 
     @overrides
     def train(self):
+
+        # added, store average returns and std returns
+        if self.plot_learning_curve:
+            avg_returns = []
+            std_returns = []
+
         # This seems like a rather sequential method
         pool = SimpleReplayPool(
             max_pool_size=self.replay_pool_size,
@@ -212,6 +230,13 @@ class DDPG(RLAlgorithm):
         for epoch in range(self.n_epochs):
             logger.push_prefix('epoch #%d | ' % epoch)
             logger.log("Training started")
+
+            # added, update curriculum if necessary
+            if isinstance(self.policy, DeterministicMLPCurriculumPolicy):
+                if itr % self.policy.update_freq == 0:
+                    if len(self.curriculum_list) > 0:
+                        self.curriculum.append(self.curriculum_list.pop(0))
+
             for epoch_itr in pyprind.prog_bar(range(self.epoch_length)):
                 # Execute policy
                 if terminal:  # or path_length > self.max_path_length:
@@ -250,10 +275,12 @@ class DDPG(RLAlgorithm):
                 itr += 1
 
             logger.log("Training finished")
+            total_returns = [0]
             if pool.size >= self.min_pool_size:
-                self.evaluate(epoch, pool)
+                total_returns = self.evaluate(epoch, pool)
                 params = self.get_epoch_snapshot(epoch)
                 logger.save_itr_params(epoch, params)
+
             logger.dump_tabular(with_prefix=False)
             logger.pop_prefix()
             if self.plot:
@@ -261,8 +288,22 @@ class DDPG(RLAlgorithm):
                 if self.pause_for_plot:
                     input("Plotting evaluation run: Press Enter to "
                               "continue...")
+
+                    
+            # added
+            if self.plot_learning_curve:
+                avg_returns.append(np.mean(total_returns))
+                std_returns.append(np.std(total_returns))
+
+
+
         self.env.terminate()
         self.policy.terminate()
+
+        # added
+        if self.plot_learning_curve:
+            return avg_returns, std_returns
+
 
     def init_opt(self):
 
@@ -370,6 +411,7 @@ class DDPG(RLAlgorithm):
             policy_params=self.policy.get_param_values(),
             max_samples=self.eval_samples,
             max_path_length=self.max_path_length,
+            curriculum=self.curriculum
         )
 
         average_discounted_return = np.mean(
@@ -438,6 +480,8 @@ class DDPG(RLAlgorithm):
         self.q_averages = []
         self.y_averages = []
         self.es_path_returns = []
+
+        return returns
 
     def update_plot(self):
         if self.plot:
