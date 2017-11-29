@@ -138,7 +138,7 @@ if __name__ == '__main__':
     #                     help='configuration number (see curriculum_config.py)')
     parser.add_argument('--agent_num', metavar='agent_num', type=int, default=10,
                         help='number of agents to train (for file writing purposes)')
-    parser.add_argument('--checkpoint_path', metavar='checkpoint_path', type=str, default='ckpy/ddpg',
+    parser.add_argument('--checkpoint_path', metavar='checkpoint_path', type=str, default='ckpt/ddpg',
                         help='path to checkpoint (for file writing purposes)')
     parser.add_argument('--num_workers', metavar='number_of_workers', type=int, default=4,
                         help='number of workers for the pool')
