@@ -195,7 +195,7 @@ def get_ddpg_curriculum_configs_cartpole():
                                                  bad_action_eps=bad_action_eps,
                                                  bad_action_prob=bad_action_prob,)
 
-    curriculum_configs.append(curriculum_config)
+            curriculum_configs.append(curriculum_config)
     return curriculum_configs
 
 # # config1 is random dynamics (like EPOpt)
