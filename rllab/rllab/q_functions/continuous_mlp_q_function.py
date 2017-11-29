@@ -2,6 +2,7 @@ import lasagne
 import lasagne.layers as L
 import lasagne.nonlinearities as NL
 import lasagne.init
+import theano as T
 import theano.tensor as TT
 from rllab.q_functions.base import QFunction
 from rllab.core.lasagne_powered import LasagnePowered
@@ -67,12 +68,14 @@ class ContinuousMLPQFunction(QFunction, LasagnePowered, Serializable):
         )
 
         output_var = L.get_output(l_output, deterministic=True).flatten()
+        action_grad = T.grad(TT.sum(output_var), l_action.input_var)
 
         self._f_qval = ext.compile_function([l_obs.input_var, l_action.input_var], output_var)
         self._output_layer = l_output
         self._obs_layer = l_obs
         self._action_layer = l_action
         self._output_nonlinearity = output_nonlinearity
+        self._f_qgrad = ext.compile_function([l_obs.input_var, l_action.input_var], action_grad)
 
         LasagnePowered.__init__(self, [l_output])
 

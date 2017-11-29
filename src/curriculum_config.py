@@ -37,26 +37,26 @@ num_iter = 2000 # 1000
 
 # TODO: try 0.005, 0.01 for phi_max
 
-use_dynamics = False # no dynamics noise
-observable_noise = False # no observation noise
+# use_dynamics = False # no dynamics noise
+# observable_noise = False # no observation noise
 
-for random in [False, True]: # adversarial, random
-    for phi_max in [0.05, 0.1]:
-        for num_steps, update_freq in zip([5, 10], [200, 100]):
-            for eps in [0.01, 0.1]:
-                step_size = phi_max / num_steps
-                phi_array = np.arange(0.0, phi_max + step_size, step_size)
+# for random in [False, True]: # adversarial, random
+#     for phi_max in [0.05, 0.1]:
+#         for num_steps, update_freq in zip([5, 10], [200, 100]):
+#             for eps in [0.01, 0.1]:
+#                 step_size = phi_max / num_steps
+#                 phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-                curriculum_config = CurriculumConfig(probability_list=phi_array,
-                                                     update_freq=update_freq,
-                                                     eps=eps,
-                                                     use_max_norm=use_max_norm,
-                                                     use_dynamics=use_dynamics,
-                                                     random=random,
-                                                     observable_noise=observable_noise,
-                                                     num_iter=num_iter)
+#                 curriculum_config = CurriculumConfig(probability_list=phi_array,
+#                                                      update_freq=update_freq,
+#                                                      eps=eps,
+#                                                      use_max_norm=use_max_norm,
+#                                                      use_dynamics=use_dynamics,
+#                                                      random=random,
+#                                                      observable_noise=observable_noise,
+#                                                      num_iter=num_iter)
 
-                curriculum_configs.append(curriculum_config)
+#                 curriculum_configs.append(curriculum_config)
 
 
 ### NEW, for dynamics scan
@@ -75,7 +75,8 @@ def get_ddpg_curriculum_configs_cartpole():
 
     # config0 is nominal config
 
-    curriculum_config = CurriculumConfig(probability_list=[],
+    curriculum_config = CurriculumConfig(adversarial=False,
+                                         probability_list=[],
                                          update_freq=update_freq,
                                          eps=eps,
                                          use_max_norm=use_max_norm,
@@ -98,7 +99,8 @@ def get_ddpg_curriculum_configs_cartpole():
     step_size = phi_max / num_steps
     phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-    curriculum_config = CurriculumConfig(probability_list=phi_array,
+    curriculum_config = CurriculumConfig(adversarial=True,
+                                         probability_list=phi_array,
                                          update_freq=update_freq,
                                          eps=eps,
                                          use_max_norm=use_max_norm,
@@ -115,7 +117,8 @@ def get_ddpg_curriculum_configs_cartpole():
         step_size = phi_max / num_steps
         phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-        curriculum_config = CurriculumConfig(probability_list=phi_array,
+        curriculum_config = CurriculumConfig(adversarial=True,
+                                             probability_list=phi_array,
                                              update_freq=update_freq,
                                              eps=eps,
                                              use_max_norm=use_max_norm,
@@ -136,7 +139,8 @@ def get_ddpg_curriculum_configs_cartpole():
 
     step_size = phi_max / num_steps
     phi_array = np.arange(0.0, phi_max + step_size, step_size)
-    curriculum_config = CurriculumConfig(probability_list=phi_array,
+    curriculum_config = CurriculumConfig(adversarial=True,
+                                         probability_list=phi_array,
                                          update_freq=update_freq,
                                          eps=eps,
                                          use_max_norm=use_max_norm,
@@ -153,7 +157,8 @@ def get_ddpg_curriculum_configs_cartpole():
         step_size = phi_max / num_steps
         phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-        curriculum_config = CurriculumConfig(probability_list=phi_array,
+        curriculum_config = CurriculumConfig(adversarial=True,
+                                             probability_list=phi_array,
                                              update_freq=update_freq,
                                              eps=eps,
                                              use_max_norm=use_max_norm,
@@ -163,6 +168,34 @@ def get_ddpg_curriculum_configs_cartpole():
                                              num_iter=num_iter)
 
         curriculum_configs.append(curriculum_config)
+
+    # config 9, 10, 11, 12, 13, 14 are model_free adversarial perturbations
+    num_steps = 5
+    use_dynamics = False
+    observable_noise = False
+    random = False
+    phi_max = 0.5
+    eps = 1.0
+
+    step_size = phi_max / num_steps
+    step_size = phi_max / num_steps
+    phi_array = np.arange(0.0, phi_max + step_size, step_size)
+    for bad_action_prob in [0.1, 0.5, 0.9]:
+        for bad_action_eps in [1, 10]:
+            curriculum_config = CurriculumConfig(adversarial=False,
+                                                 probability_list=phi_array,
+                                                 update_freq=update_freq,
+                                                 eps=eps,
+                                                 use_max_norm=use_max_norm,
+                                                 use_dynamics=use_dynamics,
+                                                 random=random,
+                                                 observable_noise=observable_noise,
+                                                 num_iter=num_iter,
+                                                 model_free_adv=True,
+                                                 bad_action_eps=bad_action_eps,
+                                                 bad_action_prob=bad_action_prob,)
+
+    curriculum_configs.append(curriculum_config)
     return curriculum_configs
 
 # # config1 is random dynamics (like EPOpt)

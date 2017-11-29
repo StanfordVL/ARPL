@@ -12,7 +12,8 @@ use_max_norm = False
 class Config(object):
     def __init__(self, adversarial, eps, probability, use_dynamics, random, observable_noise, use_max_norm,
                  num_iter=500, batch_size=25000, discount=0.995, hidden_sizes=(64, 64), adaptive_std=False,
-                 step_size=0.01, gae_lambda=0.97, num_workers=1, plot_learning_curve=True, mask_augmentation=False):
+                 step_size=0.01, gae_lambda=0.97, num_workers=1, plot_learning_curve=True, mask_augmentation=False,
+                 model_free_adv=False, bad_action_eps=1, bad_action_prob=0.3):
         """
 
         :param adversarial: if True, use adversarial states
@@ -33,7 +34,9 @@ class Config(object):
         :param plot_learning_curve: if True, collect reward curve during training
         :param mask_augmentation: if True, don't augment the state (even though the environment augments the state with 
                                   the dynamics parameters, the policy will ignore these dimensions)
-
+        :param model_free_adv: if True, take bad action according to q function
+        :param bad_action_eps: epsilon for FGSM on action based on q function
+        :param bad_action_prob: probability of taking bad action
         """
 
         self.adversarial = adversarial
@@ -53,6 +56,11 @@ class Config(object):
         self.num_workers = num_workers
         self.plot_learning_curve = plot_learning_curve
         self.mask_augmentation = mask_augmentation
+        self.model_free_adv = model_free_adv
+        self.bad_action_eps = bad_action_eps
+        self.bad_action_prob = bad_action_prob
+        
+
 
     def print_params(self):
         print("adversarial : {}".format(self.adversarial))
@@ -72,6 +80,9 @@ class Config(object):
         print("num_workers : {}".format(self.num_workers))
         print("plot_learning_curve : {}".format(self.plot_learning_curve))
         print("mask_augmentation : {}".format(self.mask_augmentation))
+        print("model_free_adv: {}".format(self.model_free_adv))
+        print("bad_action_eps: {}".format(self.bad_action_eps))
+        print("bad_action_prob: {}".format(self.bad_action_prob))
 
 configs = []
 

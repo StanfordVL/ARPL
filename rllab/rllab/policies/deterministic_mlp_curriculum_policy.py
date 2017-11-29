@@ -36,6 +36,10 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
             set_dynamics=None,
             update_freq=50,
             mask_augmentation=False,
+            qf=None,
+            bad_action_eps=0.5,
+            bad_action_prob=0.5,
+            model_free_adv=False,
             ):
         Serializable.quick_init(self, locals())
 
@@ -96,11 +100,22 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.record_traj = record_traj
         self.set_dynamics = set_dynamics
         self.mask_augmentation = mask_augmentation
+        # NEW, use qfunction to do model free adversarial perturbation
+        self.qf = qf
+        self.bad_action_eps = bad_action_eps
+        self.bad_action_prob = bad_action_prob
+        self.model_free_adv = model_free_adv
 
         self.curriculum_list = list(curriculum_list)
         self.update_freq = update_freq
 
     def get_action(self, observation):
+        if self.model_free_adv:
+            if np.random.uniform() < self.bad_action_prob:
+                # good_action = self._f_actions([observation])[0]
+                bad_action = self.get_bad_action(observation)
+                # print('good_action: {}, bad_action: {}'.format(good_action, bad_action))
+                return bad_action, dict()
         action = self._f_actions([observation])[0]
         return action, dict()
 
@@ -109,6 +124,11 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
 
     def get_action_sym(self, obs_var):
         return L.get_output(self._output_layer, obs_var)
+
+    def get_bad_action(self, observation):
+        action = self._f_actions([observation])[0]
+        gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
+        return action + self.bad_action_eps * gradient
 
     ### Class methods for generating adversarial states
 
@@ -184,7 +204,6 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
             full_state[self.zero_gradient_cutoff:] = env._set_state(full_state)[self.zero_gradient_cutoff:]
             full_state[self.zero_gradient_cutoff:] *= scale 
         return full_state  # technically not necessary
-
 
     def do_perturbation(self, env, state, is_start=False, scale=None):
         """
@@ -275,6 +294,10 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.random = config.random
         self.observable_noise = config.observable_noise
         self.use_max_norm = config.use_max_norm
+
+        self.bad_action_eps = config.bad_action_eps
+        self.bad_action_prob = config.bad_action_prob
+        self.model_free_adv = config.model_free_adv
 
 
     def sample_from_curriculum(self, curriculum):

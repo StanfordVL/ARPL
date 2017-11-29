@@ -60,6 +60,13 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
     # the agent number
     agent_num = agent_num
 
+
+    qf = ContinuousMLPQFunction(
+        env_spec=env.spec,
+        action_merge_layer=-2,
+        )
+
+
     policy = policy = DeterministicMLPCurriculumPolicy(
         env_spec=env.spec,
         # The neural network policy should have two hidden layers, each with 32 hidden units.
@@ -75,12 +82,8 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
         curriculum_list=list(curriculum_config.curriculum_list),
         update_freq=curriculum_config.update_freq,
         mask_augmentation=config.mask_augmentation,
+        qf=qf,
     )
-
-    qf = ContinuousMLPQFunction(
-        env_spec=env.spec,
-        action_merge_layer=-2,
-        )
 
     es = OUStrategy(env_spec=env.spec, mu=0, theta=0.15, sigma=0.3)
 
@@ -135,14 +138,20 @@ if __name__ == '__main__':
     #                     help='configuration number (see curriculum_config.py)')
     parser.add_argument('--agent_num', metavar='agent_num', type=int, default=10,
                         help='number of agents to train (for file writing purposes)')
-    parser.add_argument('checkpoint_path', metavar='checkpoint_path', type=str,
+    parser.add_argument('--checkpoint_path', metavar='checkpoint_path', type=str, default='ckpy/ddpg',
                         help='path to checkpoint (for file writing purposes)')
     parser.add_argument('--num_workers', metavar='number_of_workers', type=int, default=4,
                         help='number of workers for the pool')
+    parser.add_argument('--debug', action='store_true', help='shortcut for debugging')
 
     args = parser.parse_args()
+    if args.debug:
+        args.num_workers = 1
     print('args', args)
     config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
+    if args.debug:
+        # config_nums = range(1)
+        config_nums = [9]
     # iterate over train configurations
     p = Pool(args.num_workers)
     res_coll = []

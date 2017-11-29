@@ -12,7 +12,10 @@ import numpy as np
 from config import Config
 
 class CurriculumConfig(object):
-    def __init__(self, probability_list, update_freq, eps, use_max_norm, use_dynamics, random, observable_noise, num_iter):
+    def __init__(self, adversarial, probability_list, update_freq, 
+        eps, use_max_norm, use_dynamics, 
+        random, observable_noise, num_iter,
+        model_free_adv=False, bad_action_eps=0.1, bad_action_prob=0.3):
         """
 
         :param probability_list: list of probabilities to make configs for
@@ -32,19 +35,25 @@ class CurriculumConfig(object):
                          random=False,
                          observable_noise=False,
                          use_max_norm=use_max_norm,
-                         num_iter=num_iter)
+                         num_iter=num_iter,
+                         model_free_adv=False,
+                         bad_action_eps=bad_action_eps,
+                         bad_action_prob=bad_action_prob)
 
         self.curriculum_list.append(config0)
 
         for phi in probability_list:
-            phi_config = Config(adversarial=True,
+            phi_config = Config(adversarial=adversarial,
                                 eps=eps,
                                 probability=phi,
                                 use_dynamics=use_dynamics,
                                 random=random,
                                 observable_noise=observable_noise,
                                 use_max_norm=use_max_norm,
-                                num_iter=num_iter)
+                                num_iter=num_iter,
+                                model_free_adv=model_free_adv,
+                                bad_action_eps=bad_action_eps,
+                                bad_action_prob=bad_action_prob)
             self.curriculum_list.append(phi_config)
 
     def set_batch_size(self, batch_size):
@@ -75,42 +84,42 @@ update_freq = 200 # 100
 
 # config0 is nominal config
 
-curriculum_config = CurriculumConfig(probability_list=[],
-                                     update_freq=update_freq,
-                                     eps=eps,
-                                     use_max_norm=use_max_norm,
-                                     use_dynamics=False,
-                                     random=False,
-                                     observable_noise=False,
-                                     num_iter=num_iter)
+# curriculum_config = CurriculumConfig(probability_list=[],
+#                                      update_freq=update_freq,
+#                                      eps=eps,
+#                                      use_max_norm=use_max_norm,
+#                                      use_dynamics=False,
+#                                      random=False,
+#                                      observable_noise=False,
+#                                      num_iter=num_iter)
 
-curriculum_configs.append(curriculum_config)
+# curriculum_configs.append(curriculum_config)
 
-# number of steps between 0 and phi_max
-num_steps = 5 # 10
+# # number of steps between 0 and phi_max
+# num_steps = 5 # 10
 
-# config 1 is adversarial process noise
-# config 2 is random process noise
-# config 3 is adversarial dynamics noise
-# config 4 is random dynamics noise
+# # config 1 is adversarial process noise
+# # config 2 is random process noise
+# # config 3 is adversarial dynamics noise
+# # config 4 is random dynamics noise
 
-for use_dynamics in [False, True]: # process noise, dynamics noise
-    observable_noise = False # no observation noise
-    for random in [False, True]: # adversarial, random
-        for phi_max in [0.5]:
-            step_size = phi_max / num_steps
-            phi_array = np.arange(0.0, phi_max + step_size, step_size)
+# for use_dynamics in [False, True]: # process noise, dynamics noise
+#     observable_noise = False # no observation noise
+#     for random in [False, True]: # adversarial, random
+#         for phi_max in [0.5]:
+#             step_size = phi_max / num_steps
+#             phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-            curriculum_config = CurriculumConfig(probability_list=phi_array,
-                                                 update_freq=update_freq,
-                                                 eps=eps,
-                                                 use_max_norm=use_max_norm,
-                                                 use_dynamics=use_dynamics,
-                                                 random=random,
-                                                 observable_noise=observable_noise,
-                                                 num_iter=num_iter)
+#             curriculum_config = CurriculumConfig(probability_list=phi_array,
+#                                                  update_freq=update_freq,
+#                                                  eps=eps,
+#                                                  use_max_norm=use_max_norm,
+#                                                  use_dynamics=use_dynamics,
+#                                                  random=random,
+#                                                  observable_noise=observable_noise,
+#                                                  num_iter=num_iter)
 
-            curriculum_configs.append(curriculum_config)
+#             curriculum_configs.append(curriculum_config)
 
 #
 # # configs 10-14 and 15-19 have double update_freq, half steps
