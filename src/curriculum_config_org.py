@@ -15,7 +15,7 @@ class CurriculumConfig(object):
     def __init__(self, adversarial, probability_list, update_freq, 
         eps, use_max_norm, use_dynamics, 
         random, observable_noise, num_iter,
-        model_free_adv=False, bad_action_eps=0.1, bad_action_prob=0.3):
+        model_free_adv=False, bad_action_eps=0.1, bad_action_prob=0.3, model_free_max_norm=False):
         """
 
         :param probability_list: list of probabilities to make configs for

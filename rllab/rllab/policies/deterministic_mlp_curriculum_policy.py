@@ -40,6 +40,7 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
             bad_action_eps=0.5,
             bad_action_prob=0.5,
             model_free_adv=False,
+            model_free_max_norm=False,
             ):
         Serializable.quick_init(self, locals())
 
@@ -105,6 +106,7 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.bad_action_eps = bad_action_eps
         self.bad_action_prob = bad_action_prob
         self.model_free_adv = model_free_adv
+        self.model_free_max_norm = model_free_max_norm
 
         self.curriculum_list = list(curriculum_list)
         self.update_freq = update_freq
@@ -302,7 +304,7 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.bad_action_eps = config.bad_action_eps
         self.bad_action_prob = config.bad_action_prob
         self.model_free_adv = config.model_free_adv
-        self.model_free_max_norm = model_free_max_norm
+        self.model_free_max_norm = config.model_free_max_norm
 
 
     def sample_from_curriculum(self, curriculum):
