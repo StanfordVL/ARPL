@@ -126,10 +126,14 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         return L.get_output(self._output_layer, obs_var)
 
     def get_bad_action(self, observation):
-        action = self._f_actions([observation])[0]
-        gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
-        return action + self.bad_action_eps * gradient
-
+        if not self.model_free_max_norm:
+            action = self._f_actions([observation])[0]
+            gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return action + self.bad_action_eps * gradient
+        else:
+            action = self._f_actions([observation])[0]
+            gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return action + self.bad_action_eps * gradient / np.abs(gradient)
     ### Class methods for generating adversarial states
 
 
@@ -298,6 +302,7 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.bad_action_eps = config.bad_action_eps
         self.bad_action_prob = config.bad_action_prob
         self.model_free_adv = config.model_free_adv
+        self.model_free_max_norm = model_free_max_norm
 
 
     def sample_from_curriculum(self, curriculum):

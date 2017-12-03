@@ -45,7 +45,7 @@ def rollout_one(ckpt_path,
     # print("env_ind: {}".format(env_ind))
     # print("agent num: {}".format(agent_num))
 
-    fname = 'agent_{}_config_{}_agent_{}'.format(
+    fname = 'model_{}_config_{}_agent_{}'.format(
         dynamic_environments[env_ind],
         train_config_num,
         agent_num)
@@ -64,7 +64,7 @@ def rollout_one(ckpt_path,
         cum_rewards.append(np.sum(rollout_dict["rewards"]))
     data_row = (experiment_name, train_config_num, test_config_num, env_ind, agent_num, cum_rewards)
     q.put(data_row)
-    saveModel(data_row, os.path.join(eval_path, format_file_name(data_row)))
+    # saveModel(data_row, os.path.join(eval_path, format_file_name(data_row)))
     print("[env: {}, train: {}, test: {}, agent: {}]: Done".format(env_ind, train_config_num, test_config_num, agent_num))
     return
 
@@ -123,8 +123,8 @@ if __name__ == '__main__':
         experiment_name, train_config_num, test_config_num, env_ind, agent_num, rollouts = output
         summarized_outputs.append((experiment_name, train_config_num, test_config_num, env_ind, agent_num, np.mean(rollouts), np.std(rollouts)))
 
-    saveModel(all_outputs, os.path.join(args.eval_path, 'all_data.pickle'))
-    saveModel(summarized_outputs, os.path.join(args.eval_path, 'summary_data.pickle'))
+    saveModel(all_outputs, os.path.join(args.eval_path, '{}_all_data.pickle'.format(experiment_name)))
+    saveModel(summarized_outputs, os.path.join(args.eval_path, '{}_summary_data.pickle'.format(experiment_name)))
 
 
 

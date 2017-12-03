@@ -109,7 +109,7 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
     print('[env_ind: {}, config_num: {}, agent_num: {}]: training completed!'.format(env_ind, config_num, agent_num))
 
     saveModel((algo.policy, algo.qf),
-             checkpoint_path + '/' + 'agent_{}_config_{}_agent_{}'.format(dynamic_environments[env_ind], config_num, agent_num))
+             checkpoint_path + '/' + 'model_{}_config_{}_agent_{}'.format(dynamic_environments[env_ind], config_num, agent_num))
 
     # save rewards per model over the iterations
     # also plot the rewards
@@ -151,7 +151,9 @@ if __name__ == '__main__':
     config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
     if args.debug:
         # config_nums = range(1)
-        config_nums = [9]
+        config_nums = [len(get_ddpg_curriculum_configs_cartpole()) - 1]
+    if args.debug:
+        args.checkpoint_path = 'ckpt/debug'
     # iterate over train configurations
     p = Pool(args.num_workers)
     res_coll = []

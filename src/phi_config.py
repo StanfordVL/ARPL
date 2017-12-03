@@ -21,7 +21,7 @@ step_size = phi_max / num_steps
 phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
 
-def get_phi_configs(use_dynamics, observable_noise, random, eps):
+def get_phi_configs(use_dynamics, observable_noise, random, eps, phi_array):
     phi_configs = []
 
     # # baseline model (no adversarial training)
@@ -49,16 +49,40 @@ def get_phi_configs(use_dynamics, observable_noise, random, eps):
 
 # used to be eps = 0.1, and eps = [0.1, 0.01]
 
-all_phi_configs = []
-for eps in [0.1, 0.01, 1.0, 10.0]:
-    for use_dynamics in [False, True]: # process noise, dynamics noise
-        observable_noise = False # no observation noise
-        for random in [False, True]: # adversarial, random
-            phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps)
-            all_phi_configs.append(phi_configs)
-
-
+# all_phi_configs = []
+# for eps in [0.1, 0.01, 1.0, 10.0]:
+#     for use_dynamics in [False, True]: # process noise, dynamics noise
+#         observable_noise = False # no observation noise
+#         for random in [False, True]: # adversarial, random
+#             phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps)
+#             all_phi_configs.append(phi_configs)
 def get_all_phi_configs_ddpg():
+    phi_max = 0.5
+    num_steps = 20
+    step_size = phi_max / num_steps
+    phi_array = np.arange(0.0, phi_max + step_size, step_size)
+    config0 = Config(adversarial=False,
+                     eps=0,
+                     probability=-1.0,
+                     use_dynamics=False,
+                     random=False,
+                     observable_noise=False,
+                     use_max_norm=use_max_norm)
+    all_phi_configs_ddpg = [config0]
+    for eps in [0.01, 0.1, 1.0, 10.0]:
+        for observable_noise in [False, True]: # process noise, dynamics noise
+            use_dynamics = False # no observation noise
+            for random in [False, True]: # adversarial, random
+                phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps, phi_array=phi_array)
+                all_phi_configs_ddpg += list(phi_configs)
+    return all_phi_configs_ddpg
+    # all_phi_configs_ddpg = [all_phi_configs_ddpg[len(all_phi_configs_ddpg) - 1]]
+
+def get_all_phi_configs_ddpg_nov28():
+    phi_max = 0.5
+    num_steps = 3
+    step_size = phi_max / num_steps
+    phi_array = np.arange(0.0, phi_max + step_size, step_size)
     config0 = Config(adversarial=False,
                      eps=0,
                      probability=-1.0,
@@ -71,7 +95,7 @@ def get_all_phi_configs_ddpg():
         for observable_noise in [False, True]: # process noise, dynamics noise
             use_dynamics = False # no observation noise
             for random in [False, True]: # adversarial, random
-                phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps)
+                phi_configs = get_phi_configs(use_dynamics=use_dynamics, observable_noise=observable_noise, random=random, eps=eps, phi_array=phi_array)
                 all_phi_configs_ddpg += list(phi_configs)
     return all_phi_configs_ddpg
     # all_phi_configs_ddpg = [all_phi_configs_ddpg[len(all_phi_configs_ddpg) - 1]]
