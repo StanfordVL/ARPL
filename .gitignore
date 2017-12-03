@@ -1,6 +1,2 @@
 .DS_Store
 *.pyc
-ckpt/
-eval/
-!*summary_data.pickle
-!*all_data.pickle
