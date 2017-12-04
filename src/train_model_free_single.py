@@ -87,8 +87,6 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
 
     es = OUStrategy(env_spec=env.spec, mu=0, theta=0.15, sigma=0.3)
 
-    print('num_iter', config.num_iter)
-
     algo = DDPG(
         env=env,
         policy=policy,

@@ -244,9 +244,7 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         # Q function based adversarial
         if self.model_free_adv_state or self.model_free_adv_observation:
             if np.random.uniform() < self.model_free_phi:
-                print('original observation', state)
                 state = self.get_bad_state(state)
-                print('new observation', state)
                 if self.model_free_adv_state:
                     if scale is not None:
                         # scale down to set environment dynamics correctly
