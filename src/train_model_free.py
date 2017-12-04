@@ -31,12 +31,10 @@ import sys
 from make_table import print_table_normal, init_doc, end_doc
 from multiprocessing import Pool
 
-def train(env_ind, config_num, agent_num, checkpoint_path):
+def train(env_ind, org_env_size, config_num, agent_num, checkpoint_path):
     # get the original state space size first
     print('[env_ind: {}, config_num: {}, agent_num: {}]: starting'.format(env_ind, config_num, agent_num))
-    org_env = GymEnv(original_environments[env_ind])
-    org_env_size = org_env.observation_space.shape[0]
-    org_env.terminate()
+    
 
     # the environment
     env = GymEnv(dynamic_environments[env_ind])
@@ -153,12 +151,16 @@ if __name__ == '__main__':
         config_nums = [len(get_ddpg_curriculum_configs_cartpole()) - 1]
     if args.debug:
         args.checkpoint_path = 'ckpt/debug'
+
+    org_env = GymEnv(original_environments[args.env_ind])
+    org_env_size = org_env.observation_space.shape[0]
+    org_env.terminate()
     # iterate over train configurations
     p = Pool(args.num_workers)
     res_coll = []
     for train_config_num in config_nums:
         for agent_num in range(args.agent_num):
-            res = p.apply_async(train, (args.env_ind, train_config_num, agent_num, args.checkpoint_path))
+            res = p.apply_async(train, (args.env_ind, org_env_size, train_config_num, agent_num, args.checkpoint_path))
             res_coll.append(res)
     for res in res_coll:
         res.get()
