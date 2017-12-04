@@ -76,8 +76,8 @@ if __name__ == '__main__':
     # iterate over train configurations
     p = Pool(args.num_workers)
     res_coll = []
-    for train_config_num in config_nums:
-        for agent_num in range(args.agent_num):
+    for agent_num in range(args.agent_num):
+        for train_config_num in config_nums:
             res = p.apply_async(train, (args.env_ind, train_config_num, agent_num, args.checkpoint_path))
             res_coll.append(res)
     for res in res_coll:
