@@ -12,10 +12,20 @@ import numpy as np
 from config import Config
 
 class CurriculumConfig(object):
-    def __init__(self, adversarial, probability_list, update_freq, 
-        eps, use_max_norm, use_dynamics, 
-        random, observable_noise, num_iter,
-        model_free_adv=False, bad_action_eps=0.1, bad_action_prob=0.3, model_free_max_norm=False):
+    def __init__(self, 
+        adversarial, 
+        model_free_adv, 
+        probability_list, 
+        update_freq, 
+        eps=0, 
+        use_max_norm=False, 
+        use_dynamics=False, 
+        random=False, 
+        observable_noise=False, 
+        num_iter=1000, 
+        use_action=False, 
+        use_state=False, 
+        use_observation=False):
         """
 
         :param probability_list: list of probabilities to make configs for
@@ -29,32 +39,40 @@ class CurriculumConfig(object):
 
         # nominal
         config0 = Config(adversarial=False,
-                         eps=eps,
-                         probability=-1.0,
-                         use_dynamics=False,
-                         random=False,
-                         observable_noise=False,
-                         use_max_norm=use_max_norm,
-                         num_iter=num_iter,
                          model_free_adv=False,
-                         bad_action_eps=bad_action_eps,
-                         bad_action_prob=bad_action_prob)
+                         num_iter=num_iter)
 
         self.curriculum_list.append(config0)
 
-        for phi in probability_list:
-            phi_config = Config(adversarial=adversarial,
-                                eps=eps,
-                                probability=phi,
-                                use_dynamics=use_dynamics,
-                                random=random,
-                                observable_noise=observable_noise,
-                                use_max_norm=use_max_norm,
-                                num_iter=num_iter,
-                                model_free_adv=model_free_adv,
-                                bad_action_eps=bad_action_eps,
-                                bad_action_prob=bad_action_prob)
-            self.curriculum_list.append(phi_config)
+        assert(not (adversarial and model_free_adv))
+
+        if adversarial:
+            for phi in probability_list:
+                phi_config = Config(adversarial=adversarial,
+                                    eps=eps,
+                                    probability=phi,
+                                    use_dynamics=use_dynamics,
+                                    random=random,
+                                    observable_noise=observable_noise,
+                                    use_max_norm=use_max_norm,
+                                    num_iter=num_iter,
+                                    model_free_adv=False)
+                self.curriculum_list.append(phi_config)
+
+        if model_free_adv:
+            for phi in probability_list:
+                assert(not (use_action and use_state))
+                phi_config = Config(adversarial=False,
+                                    num_iter=num_iter,
+                                    model_free_adv=True,
+                                    model_free_eps=eps,
+                                    model_free_phi=phi,
+                                    model_free_adv_observation=use_observation,
+                                    model_free_adv_action=use_action,
+                                    model_free_adv_state=use_state,
+                                    model_free_max_norm=use_max_norm)
+                self.curriculum_list.append(phi_config)
+
 
     def set_batch_size(self, batch_size):
         for config in self.curriculum_list:
@@ -70,17 +88,17 @@ class CurriculumConfig(object):
         print('=======================')
 
 
-curriculum_configs = []
+# curriculum_configs = []
 
-# how to do adversarial / random perturbations
-eps = 0.1
-use_max_norm = False
+# # how to do adversarial / random perturbations
+# eps = 0.1
+# use_max_norm = False
 
-# number of iterations
-num_iter = 2000 # 1000
+# # number of iterations
+# num_iter = 2000 # 1000
 
-# update frequency
-update_freq = 200 # 100
+# # update frequency
+# update_freq = 200 # 100
 
 # config0 is nominal config
 

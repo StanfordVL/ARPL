@@ -35,7 +35,7 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
     # get the original state space size first
     print('[env_ind: {}, config_num: {}, agent_num: {}]: starting'.format(env_ind, config_num, agent_num))
     
-    org_env = GymEnv(original_environments[args.env_ind])
+    org_env = GymEnv(original_environments[env_ind])
     org_env_size = org_env.observation_space.shape[0]
     org_env.terminate()
 
@@ -87,14 +87,15 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
 
     es = OUStrategy(env_spec=env.spec, mu=0, theta=0.15, sigma=0.3)
 
+    print('num_iter', config.num_iter)
 
     algo = DDPG(
         env=env,
         policy=policy,
         es=es,
         qf=qf,
-        batch_size=32,
-        max_path_length=100,
+        batch_size=config.ddpg_batch_size,
+        max_path_length=config.max_horizon,
         epoch_length=1000,
         min_pool_size=10000,
         n_epochs=config.num_iter,

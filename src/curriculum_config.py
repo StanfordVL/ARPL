@@ -60,73 +60,55 @@ num_iter = 2000 # 1000
 
 def get_ddpg_curriculum_configs_cartpole():
     curriculum_configs = []
-    # how to do adversarial / random perturbations
-    eps = 0.1
     use_max_norm = False
+    num_iter = 500
+    update_freq = 50
+    # num_iter = 20
+    # update_freq = 1
+    phi_max=0.8
+    num_steps = 8
+    step_size = phi_max / num_steps
+    phi_array = np.arange(0.0, phi_max + step_size, step_size)
 
-    # number of iterations
-    num_iter = 1000
-
-    # update frequency
-    update_freq = 200 # 100
-
-    # config0 is nominal config
-
+    # config 0 is nominal config
     curriculum_config = CurriculumConfig(adversarial=False,
-                                         probability_list=[],
-                                         update_freq=update_freq,
-                                         eps=eps,
-                                         use_max_norm=use_max_norm,
-                                         use_dynamics=False,
-                                         random=False,
-                                         observable_noise=False,
-                                         num_iter=num_iter)
+                                        model_free_adv=False,
+                                        probability_list=[0],
+                                        update_freq=update_freq,
+                                        num_iter=num_iter)
 
     curriculum_configs.append(curriculum_config)
+    
+    # configs 1,2,3 changes actual state 
+    for eps in [0.1, 1, 10]:
+        curriculum_config = CurriculumConfig(adversarial=False,
+                                             probability_list=phi_array,
+                                             update_freq=update_freq,
+                                             num_iter=num_iter,
+                                             model_free_adv=True,
+                                             eps=eps,
+                                             use_state=True)
 
-    use_dynamics = False
-    observable_noise = False
-    random = False
-    eps = 1.0
+    # configs 4,5,6 changes action
+    for eps in [0.1, 1, 10]:
+        curriculum_config = CurriculumConfig(adversarial=False,
+                                     eps=eps,
+                                     probability_list=phi_array,
+                                     update_freq=update_freq,
+                                     num_iter=num_iter,
+                                     model_free_adv=True,
+                                     use_action=True)
 
-    # 1 - 6 are one step gradient perturbation
-    phi_array = [0]
-    for bad_action_prob in [0.1, 0.5, 0.9]:
-        for bad_action_eps in [0.1, 1, 10]:
-            curriculum_config = CurriculumConfig(adversarial=False,
-                                                 probability_list=phi_array,
-                                                 update_freq=update_freq,
-                                                 eps=eps,
-                                                 use_max_norm=use_max_norm,
-                                                 use_dynamics=use_dynamics,
-                                                 random=random,
-                                                 observable_noise=observable_noise,
-                                                 num_iter=num_iter,
-                                                 model_free_adv=True,
-                                                 bad_action_eps=bad_action_eps,
-                                                 bad_action_prob=bad_action_prob,)
-            curriculum_configs.append(curriculum_config)
-
-
-    # 7 - 11 are one step FGSM perturbation
-    phi_array = [0]
-    for bad_action_prob in [0.1, 0.5, 0.9]:
-        for bad_action_eps in [0.1, 1, 10]:
-            curriculum_config = CurriculumConfig(adversarial=False,
-                                                 probability_list=phi_array,
-                                                 update_freq=update_freq,
-                                                 eps=eps,
-                                                 use_max_norm=use_max_norm,
-                                                 use_dynamics=use_dynamics,
-                                                 random=random,
-                                                 observable_noise=observable_noise,
-                                                 num_iter=num_iter,
-                                                 model_free_adv=True,
-                                                 bad_action_eps=bad_action_eps,
-                                                 bad_action_prob=bad_action_prob,
-                                                 model_free_max_norm=True)
-            curriculum_configs.append(curriculum_config)
-
+    # configs 7,8,9 changes observation
+    for eps in [0.1, 1, 10]:
+        curriculum_config = CurriculumConfig(adversarial=False,
+                                     eps=eps,
+                                     probability_list=phi_array,
+                                     update_freq=update_freq,
+                                     num_iter=num_iter,
+                                     model_free_adv=True,
+                                     use_observation=True)
+        curriculum_configs.append(curriculum_config)
 
     return curriculum_configs
 

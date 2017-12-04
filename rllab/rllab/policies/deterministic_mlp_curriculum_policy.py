@@ -37,11 +37,14 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
             update_freq=50,
             mask_augmentation=False,
             qf=None,
-            bad_action_eps=0.5,
-            bad_action_prob=0.5,
-            model_free_adv=False,
+            model_free_eps=0.5,
+            model_free_phi=0.5,
+            model_free_adv_observation=False,
+            model_free_adv_action=False,
+            model_free_adv_state=False,
             model_free_max_norm=False,
             ):
+
         Serializable.quick_init(self, locals())
 
         l_obs = L.InputLayer(shape=(None, env_spec.observation_space.flat_dim))
@@ -103,22 +106,22 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.mask_augmentation = mask_augmentation
         # NEW, use qfunction to do model free adversarial perturbation
         self.qf = qf
-        self.bad_action_eps = bad_action_eps
-        self.bad_action_prob = bad_action_prob
-        self.model_free_adv = model_free_adv
+        self.model_free_adv_observation = model_free_adv_observation
+        self.model_free_adv_action = model_free_adv_action
+        self.model_free_adv_state = model_free_adv_state
         self.model_free_max_norm = model_free_max_norm
 
         self.curriculum_list = list(curriculum_list)
         self.update_freq = update_freq
 
     def get_action(self, observation):
-        if self.model_free_adv:
-            if np.random.uniform() < self.bad_action_prob:
-                # good_action = self._f_actions([observation])[0]
+        if len(observation.shape) == 1:
+            observation = observation.reshape(1,-1)
+        if self.model_free_adv_action:
+            if np.random.uniform() < self.model_free_phi:
                 bad_action = self.get_bad_action(observation)
-                # print('good_action: {}, bad_action: {}'.format(good_action, bad_action))
                 return bad_action, dict()
-        action = self._f_actions([observation])[0]
+        action = self._f_actions(observation)[0]
         return action, dict()
 
     def get_actions(self, observations):
@@ -127,17 +130,31 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
     def get_action_sym(self, obs_var):
         return L.get_output(self._output_layer, obs_var)
 
-    def get_bad_action(self, observation):
-        if not self.model_free_max_norm:
-            action = self._f_actions([observation])[0]
-            gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
-            return action + self.bad_action_eps * gradient
-        else:
-            action = self._f_actions([observation])[0]
-            gradient = self.qf._f_qval(observation.reshape([1, -1]), action.reshape([1, -1]))
-            return action + self.bad_action_eps * gradient / np.abs(gradient)
     ### Class methods for generating adversarial states
 
+    def get_bad_action(self, observation):
+        if len(observation.shape) == 1:
+            observation = observation.reshape(1,-1)
+        if not self.model_free_max_norm:
+            action = self._f_actions(observation)[0]
+            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return action + self.model_free_eps * gradient
+        else:
+            action = self._f_actions(observation)[0]
+            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return action + self.model_free_eps * gradient / np.abs(gradient)
+    
+    def get_bad_state(self, observation):
+        if len(observation.shape) == 1:
+            observation = observation.reshape(1,-1)
+        if not self.model_free_max_norm:
+            action = self._f_actions(observation)[0]
+            gradient = self.qf._f_qgrad_state(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return observation + self.model_free_eps * gradient
+        else:
+            action = self._f_actions(observation)[0]
+            gradient = self.qf._f_qgrad_state(observation.reshape([1, -1]), action.reshape([1, -1]))
+            return observation + self.model_free_eps * gradient / np.abs(gradient)
 
     def get_adv_gradient(self, observation):
         """
@@ -224,66 +241,82 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         :param scale: if not None, scale the dynamics by this factor before updating the state vector. 
         :return: perturbed state
         """
+        # Q function based adversarial
+        if self.model_free_adv_state or self.model_free_adv_observation:
+            if np.random.uniform() < self.model_free_phi:
+                print('original observation', state)
+                state = self.get_bad_state(state)
+                print('new observation', state)
+                if self.model_free_adv_state:
+                    if scale is not None:
+                        # scale down to set environment dynamics correctly
+                        env_state = state.copy()
+                        env_state[self.zero_gradient_cutoff:] /= scale
+                        env_state = env._set_state(env_state)
+                        state = env_state.copy()
+                        state[self.zero_gradient_cutoff:] *= scale
+                    else:
+                        state = env._set_state(state)
 
         # If @adversarial is not set, this is a no-op
-        if not self.adversarial:
-            return state
-        # If @probability is 0 and it isn't the beginning of the episode, this is a no-op
-        if self.probability == 0.0 and not is_start:
-            return state
+        if self.adversarial:   
+            # If @probability is 0 and it isn't the beginning of the episode, this is a no-op
+            if self.probability == 0.0 and not is_start:
+                return state
 
-        # If @probability > 0 and we lose the coin flip this is a no-op
-        if self.probability > 0 and np.random.binomial(1, 1.0 - self.probability):
-            return state
+            # If @probability > 0 and we lose the coin flip this is a no-op
+            if self.probability > 0 and np.random.binomial(1, 1.0 - self.probability):
+                return state
 
-        # Adversarial dynamics generation
-        if self.use_dynamics:
-            # Sample uniformly from dynamics grid first.
-            dynamics = env.get_random_config()
-            state = self.set_adversarial_dynamics(env=env, full_state=state, dynamics=dynamics, scale=scale)
+            # Adversarial dynamics generation
+            if self.use_dynamics:
+                # Sample uniformly from dynamics grid first.
+                dynamics = env.get_random_config()
+                state = self.set_adversarial_dynamics(env=env, full_state=state, dynamics=dynamics, scale=scale)
 
-            # Do an adversarial perturbation on top of the random dynamics.
-            # Note that we compute the perturbation with respect to the new random dynamics.
-            if not self.random:
-                # state must be augmented for adversarial dynamics perturbations
-                assert(not self.mask_augmentation) 
+                # Do an adversarial perturbation on top of the random dynamics.
+                # Note that we compute the perturbation with respect to the new random dynamics.
+                if not self.random:
+                    # state must be augmented for adversarial dynamics perturbations
+                    assert(not self.mask_augmentation) 
 
-                # gradient of loss wrt new sampled dynamics
+                    # gradient of loss wrt new sampled dynamics
+                    grad = self.get_adv_gradient(state)
+
+                    if self.use_max_norm:
+                        state += self.eps * np.sign(grad)  # FGSM
+                    else:
+                        state += self.eps * grad  # gradient ascent
+
+            # Adversarial state generation
+            else:
+
+                # gradient of loss wrt state
                 grad = self.get_adv_gradient(state)
 
+                if self.random:
+                    # For random generation, sample uniformly, with bounds given by gradient.
+                    grad = np.abs(grad)
+                    grad = np.random.uniform(-grad, grad)
                 if self.use_max_norm:
-                    state += self.eps * np.sign(grad)  # FGSM
+                    # note: use len(grad) to handle both augmented and non-augmented gradients, since
+                    # the grad size depends on @self.mask_augmentation
+                    state[:len(grad)] += self.eps * np.sign(grad)  # FGSM
                 else:
-                    state += self.eps * grad  # gradient ascent
+                    state[:len(grad)] += self.eps * grad  # gradient ascent
 
-        # Adversarial state generation
-        else:
-
-            # gradient of loss wrt state
-            grad = self.get_adv_gradient(state)
-
-            if self.random:
-                # For random generation, sample uniformly, with bounds given by gradient.
-                grad = np.abs(grad)
-                grad = np.random.uniform(-grad, grad)
-            if self.use_max_norm:
-                # note: use len(grad) to handle both augmented and non-augmented gradients, since
-                # the grad size depends on @self.mask_augmentation
-                state[:len(grad)] += self.eps * np.sign(grad)  # FGSM
-            else:
-                state[:len(grad)] += self.eps * grad  # gradient ascent
-
-        # only change environment if no observation noise
-        if not self.observable_noise:
-            if scale is not None:
-                # scale down to set environment dynamics correctly
-                env_state = state.copy()
-                env_state[self.zero_gradient_cutoff:] /= scale
-                env_state = env._set_state(env_state)
-                state = env_state.copy()
-                state[self.zero_gradient_cutoff:] *= scale
-            else:
-                state = env._set_state(state)
+            # only change environment if no observation noise
+            if not self.observable_noise:
+                if scale is not None:
+                    # scale down to set environment dynamics correctly
+                    env_state = state.copy()
+                    env_state[self.zero_gradient_cutoff:] /= scale
+                    env_state = env._set_state(env_state)
+                    state = env_state.copy()
+                    state[self.zero_gradient_cutoff:] *= scale
+                else:
+                    state = env._set_state(state)
+            return state
         return state
 
     def set_config(self, config):
@@ -301,9 +334,11 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         self.observable_noise = config.observable_noise
         self.use_max_norm = config.use_max_norm
 
-        self.bad_action_eps = config.bad_action_eps
-        self.bad_action_prob = config.bad_action_prob
-        self.model_free_adv = config.model_free_adv
+        self.model_free_eps = config.model_free_eps
+        self.model_free_phi = config.model_free_phi
+        self.model_free_adv_observation = config.model_free_adv_observation
+        self.model_free_adv_action = config.model_free_adv_action
+        self.model_free_adv_state = config.model_free_adv_state
         self.model_free_max_norm = config.model_free_max_norm
 
 

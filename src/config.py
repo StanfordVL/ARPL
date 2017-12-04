@@ -10,10 +10,33 @@ eps = 0.1
 use_max_norm = False
 
 class Config(object):
-    def __init__(self, adversarial, eps, probability, use_dynamics, random, observable_noise, use_max_norm,
-                 num_iter=500, batch_size=25000, discount=0.995, hidden_sizes=(64, 64), adaptive_std=False,
-                 step_size=0.01, gae_lambda=0.97, num_workers=1, plot_learning_curve=True, mask_augmentation=False,
-                 model_free_adv=False, bad_action_eps=1, bad_action_prob=0.3, model_free_max_norm=False):
+    def __init__(self, 
+                 adversarial=False, 
+                 eps=0, 
+                 probability=0,
+                 use_dynamics=False, 
+                 random=False, 
+                 observable_noise=False, 
+                 use_max_norm=False,
+                 num_iter=500, 
+                 batch_size=25000, 
+                 discount=0.995, 
+                 hidden_sizes=(64, 64), 
+                 adaptive_std=False,
+                 step_size=0.01, 
+                 gae_lambda=0.97, 
+                 num_workers=1, 
+                 plot_learning_curve=True, 
+                 mask_augmentation=False,
+                 max_horizon=100,
+                 ddpg_batch_size=32,
+                 model_free_adv=False,
+                 model_free_eps=0.5,
+                 model_free_phi=0.5,
+                 model_free_adv_observation=False,
+                 model_free_adv_action=False,
+                 model_free_adv_state=False,
+                 model_free_max_norm=False,):
         """
 
         :param adversarial: if True, use adversarial states
@@ -55,12 +78,17 @@ class Config(object):
         self.gae_lambda = gae_lambda
         self.num_workers = num_workers
         self.plot_learning_curve = plot_learning_curve
+        self.max_horizon = max_horizon
+        self.ddpg_batch_size = ddpg_batch_size
         self.mask_augmentation = mask_augmentation
-        self.model_free_adv = model_free_adv
-        self.bad_action_eps = bad_action_eps
-        self.bad_action_prob = bad_action_prob
-        self.model_free_max_norm = model_free_max_norm
-        
+        self.model_free_adv=model_free_adv
+        self.model_free_eps=model_free_eps
+        self.model_free_phi=model_free_phi
+        self.model_free_adv_observation=model_free_adv_observation
+        self.model_free_adv_action=model_free_adv_action
+        self.model_free_adv_state=model_free_adv_state
+        self.model_free_max_norm=model_free_max_norm
+      
 
 
     def print_params(self):
@@ -81,9 +109,16 @@ class Config(object):
         print("num_workers : {}".format(self.num_workers))
         print("plot_learning_curve : {}".format(self.plot_learning_curve))
         print("mask_augmentation : {}".format(self.mask_augmentation))
+
+        print("max_horizon: {}".format(self.max_horizon))
+        print("ddpg_batch_size: {}".format(self.ddpg_batch_size))
+
+        print("model_free_eps: {}".format(self.model_free_eps))
+        print("model_free_phi: {}".format(self.model_free_phi))
         print("model_free_adv: {}".format(self.model_free_adv))
-        print("bad_action_eps: {}".format(self.bad_action_eps))
-        print("bad_action_prob: {}".format(self.bad_action_prob))
+        print("model_free_adv_observation: {}".format(self.model_free_adv_observation))
+        print("model_free_adv_action: {}".format(self.model_free_adv_action))
+        print("model_free_adv_state: {}".format(self.model_free_adv_state))
         print("model_free_max_norm: {}".format(self.model_free_max_norm))
 
 configs = []

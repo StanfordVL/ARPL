@@ -69,13 +69,15 @@ class ContinuousMLPQFunction(QFunction, LasagnePowered, Serializable):
 
         output_var = L.get_output(l_output, deterministic=True).flatten()
         action_grad = T.grad(TT.sum(output_var), l_action.input_var)
+        state_grad = T.grad(TT.sum(output_var), l_obs.input_var)
 
         self._f_qval = ext.compile_function([l_obs.input_var, l_action.input_var], output_var)
         self._output_layer = l_output
         self._obs_layer = l_obs
         self._action_layer = l_action
         self._output_nonlinearity = output_nonlinearity
-        self._f_qgrad = ext.compile_function([l_obs.input_var, l_action.input_var], action_grad)
+        self._f_qgrad_action = ext.compile_function([l_obs.input_var, l_action.input_var], action_grad)
+        self._f_qgrad_state = ext.compile_function([l_obs.input_var, l_action.input_var], state_grad)
 
         LasagnePowered.__init__(self, [l_output])
 

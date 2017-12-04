@@ -22,6 +22,7 @@ import argparse
 import numpy as np
 from curriculum_config import get_ddpg_curriculum_configs_cartpole
 from environments import dynamic_environments, original_environments
+from train_model_free_single import train
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -33,16 +34,16 @@ import subprocess
 from make_table import print_table_normal, init_doc, end_doc
 from multiprocessing import Pool
 
-def train(env_ind, config_num, agent_num, checkpoint_path):
-    directory = os.getcwd()
-    train_single_script = os.path.join(directory, 'src/train_model_free_single.py', )
-    subprocess.run(['python', 
-        train_single_script, 
-        str(env_ind), 
-        str(config_num), 
-        str(agent_num),
-        str(checkpoint_path)],
-        check=True)
+# def train(env_ind, config_num, agent_num, checkpoint_path):
+#     directory = os.getcwd()
+#     train_single_script = os.path.join(directory, 'src/train_model_free_single.py', )
+#     subprocess.run(['python', 
+#         train_single_script, 
+#         str(env_ind), 
+#         str(config_num), 
+#         str(agent_num),
+#         str(checkpoint_path)],
+#         check=True)
 
 
 if __name__ == '__main__':
@@ -62,11 +63,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.debug:
         args.num_workers = 1
+        args.agent_num=1
     print('args', args)
     config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
-    if args.debug:
+    # if args.debug:
         # config_nums = range(1)
-        config_nums = [len(get_ddpg_curriculum_configs_cartpole()) - 1]
+        # config_nums = [len(get_ddpg_curriculum_configs_cartpole()) - 1]
     if args.debug:
         args.checkpoint_path = 'ckpt/debug'
 
