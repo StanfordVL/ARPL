@@ -98,9 +98,9 @@ if __name__ == '__main__':
     res_coll = []
     q = Manager().Queue()
 
-    for train_config_num in range(len(train_configs)):
-        for test_config_num in range(len(test_configs)):
-            for agent_num in range(args.num_agents):
+    for agent_num in range(args.num_agents):
+        for train_config_num in range(len(train_configs)):
+            for test_config_num in range(len(test_configs)):
                 res = p.apply_async(rollout_one, 
                     (args.ckpt_path, 
                     args.eval_path, 

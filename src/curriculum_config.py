@@ -88,6 +88,7 @@ def get_ddpg_curriculum_configs_cartpole():
                                              model_free_adv=True,
                                              eps=eps,
                                              use_state=True)
+        curriculum_configs.append(curriculum_config)
 
     # configs 4,5,6 changes action
     for eps in [0.1, 1, 10]:
@@ -98,6 +99,7 @@ def get_ddpg_curriculum_configs_cartpole():
                                      num_iter=num_iter,
                                      model_free_adv=True,
                                      use_action=True)
+        curriculum_configs.append(curriculum_config)
 
     # configs 7,8,9 changes observation
     for eps in [0.1, 1, 10]:
