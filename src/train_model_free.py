@@ -63,10 +63,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.debug:
         args.num_workers = 1
-        args.agent_num=1
+        args.agent_num = 1
     print('args', args)
     config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
-    # if args.debug:
+    if args.debug:
+        config_nums = [5]
         # config_nums = range(1)
         # config_nums = [len(get_ddpg_curriculum_configs_cartpole()) - 1]
     if args.debug:

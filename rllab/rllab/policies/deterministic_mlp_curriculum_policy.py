@@ -137,11 +137,11 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
             observation = observation.reshape(1,-1)
         if not self.model_free_max_norm:
             action = self._f_actions(observation)[0]
-            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))
+            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))[0]
             return action + self.model_free_eps * gradient
         else:
             action = self._f_actions(observation)[0]
-            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))
+            gradient = self.qf._f_qgrad_action(observation.reshape([1, -1]), action.reshape([1, -1]))[0]
             return action + self.model_free_eps * gradient / np.abs(gradient)
     
     def get_bad_state(self, observation):
@@ -150,11 +150,11 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
         if not self.model_free_max_norm:
             action = self._f_actions(observation)[0]
             gradient = self.qf._f_qgrad_state(observation.reshape([1, -1]), action.reshape([1, -1]))
-            return observation + self.model_free_eps * gradient
+            return (observation + self.model_free_eps * gradient)[0]
         else:
             action = self._f_actions(observation)[0]
             gradient = self.qf._f_qgrad_state(observation.reshape([1, -1]), action.reshape([1, -1]))
-            return observation + self.model_free_eps * gradient / np.abs(gradient)
+            return (observation + self.model_free_eps * gradient / np.abs(gradient))[0]
 
     def get_adv_gradient(self, observation):
         """
