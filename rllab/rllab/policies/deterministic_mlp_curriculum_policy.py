@@ -295,7 +295,11 @@ class DeterministicMLPCurriculumPolicy(Policy, LasagnePowered, Serializable):
                 if self.random:
                     # For random generation, sample uniformly, with bounds given by gradient.
                     grad = np.abs(grad)
-                    grad = np.random.uniform(-grad, grad)
+                    try: 
+                        grad = np.random.uniform(-grad, grad)
+                    except OverflowError:
+                        print('OverflowError met. Grad:', grad)
+                        grad = np.random.uniform(state)
                 if self.use_max_norm:
                     # note: use len(grad) to handle both augmented and non-augmented gradients, since
                     # the grad size depends on @self.mask_augmentation
