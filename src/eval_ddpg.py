@@ -74,7 +74,9 @@ if __name__ == '__main__':
                         help='path of all checkpoint files')
     parser.add_argument('env_ind', metavar='env_ind', type=int,
                         help='index corresponding to environment name (see environments.py)')
-    parser.add_argument('num_agents', metavar='num_agents', type=int, default='1',
+    parser.add_argument('num_agents_low', metavar='num_agents_low', type=int, default='0',
+                        help='number of agents, to do rollout over multiple trained agents of same type')
+    parser.add_argument('num_agents_high', metavar='num_agents_high', type=int, default='0',
                         help='number of agents, to do rollout over multiple trained agents of same type')
     parser.add_argument('--ckpt_path', metavar='ckpt_path', type=str, default='',
                         help='path of all checkpoint files')
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     res_coll = []
     q = Manager().Queue()
 
-    for agent_num in range(args.num_agents):
+    for agent_num in range(args.num_agents_low, args.num_agents_high):
         for train_config_num in range(len(train_configs)):
             for test_config_num in range(len(test_configs)):
                 res = p.apply_async(rollout_one, 
@@ -123,8 +125,8 @@ if __name__ == '__main__':
         experiment_name, train_config_num, test_config_num, env_ind, agent_num, rollouts = output
         summarized_outputs.append((experiment_name, train_config_num, test_config_num, env_ind, agent_num, np.mean(rollouts), np.std(rollouts)))
 
-    saveModel(all_outputs, os.path.join(args.eval_path, '{}_all_data.pickle'.format(experiment_name)))
-    saveModel(summarized_outputs, os.path.join(args.eval_path, '{}_summary_data.pickle'.format(experiment_name)))
+    saveModel(all_outputs, os.path.join(args.eval_path, '{}_all_data_{}_{}.pickle'.format(experiment_name, args.num_agents_low, args.num_agents_high)))
+    saveModel(summarized_outputs, os.path.join(args.eval_path, '{}_summary_data_{}_{}.pickle'.format(experiment_name, args.num_agents_low, args.num_agents_high)))
 
 
 
