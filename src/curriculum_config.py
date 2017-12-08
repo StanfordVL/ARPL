@@ -59,7 +59,7 @@ num_iter = 2000 # 1000
 #                 curriculum_configs.append(curriculum_config)
 
 def get_ddpg_curriculum_configs_dec7():
-        curriculum_configs = []
+    curriculum_configs = []
     use_max_norm = False
     num_iter = 2000
     update_freq = 100

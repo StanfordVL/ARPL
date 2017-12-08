@@ -41,7 +41,7 @@ def train(env_ind, config_num, agent_num, checkpoint_path):
 
     # the environment
     env = GymEnv(dynamic_environments[env_ind])
-    curriculum_configs = get_ddpg_curriculum_configs_cartpole()
+    curriculum_configs = get_ddpg_curriculum_configs_dec7()
     # the configuration settings
     curriculum_config = curriculum_configs[config_num]
     # print('config: ')
