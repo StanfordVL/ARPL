@@ -20,7 +20,7 @@ This module is the main training module for training DDPG agents.
 
 import argparse
 import numpy as np
-from curriculum_config import get_ddpg_curriculum_configs_cartpole
+from curriculum_config import get_ddpg_curriculum_configs_dec7
 from environments import dynamic_environments, original_environments
 from train_model_free_single import train
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         args.num_workers = 1
         args.agent_num = 1
     print('args', args)
-    config_nums = range(len(get_ddpg_curriculum_configs_cartpole()))
+    config_nums = range(len(get_ddpg_curriculum_configs_dec7()))
     if args.debug:
         config_nums = [5]
         # config_nums = range(1)

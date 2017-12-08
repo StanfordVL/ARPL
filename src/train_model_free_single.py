@@ -20,7 +20,7 @@ from rllab.envs.normalized_env import normalize
 
 import argparse
 import numpy as np
-from curriculum_config import get_ddpg_curriculum_configs_cartpole
+from curriculum_config import get_ddpg_curriculum_configs_dec7
 from environments import dynamic_environments, original_environments
 
 import matplotlib as mpl
