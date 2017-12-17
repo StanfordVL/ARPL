@@ -20,7 +20,7 @@ if __name__ == '__main__':
     hosts = ['napoli{}'.format(x + 1) for x in range(16)]
     host_queue = queue.Queue()
     for host in hosts:
-        host_queue.append(host)
+        host_queue.put(host)
     commands = generate_commands()
     pool = ThreadPool(processes=len(hosts))
 
