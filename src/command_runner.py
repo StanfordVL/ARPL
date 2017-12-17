@@ -1,3 +1,4 @@
+import os
 import subprocess
 import argparse
 import queue
@@ -13,7 +14,7 @@ def generate_commands():
     preamble = 'source activate arpl; cd ~/ai/ARPL;'
     for env in envs:
         for run in runs:
-            for index in range(len(lows))
+            for index in range(len(lows)):
                 experiment_name = 'env{}_{}'.format(env, run)
                 com = ' python src/eval_ddpg.py --num_workers 24 {} {} {} {}'.format(experiment_name, env, lows[index], highs[index])
                 all_commands.append(preamble + com)
@@ -21,7 +22,7 @@ def generate_commands():
 
 def run_command(command, log_path):
     host = host_queue.get()
-    log_path = os.path.join(log_path, command.split(';')[-1].replace(' ', '_') + '.log')
+    log_path = os.path.join(log_path, command.split(';')[-1].replace(' ', '_').replace('/','_') + '.log')
     with open(log_path, 'w') as f:
         output = subprocess.run(['ssh', host,  "{}".format(command)], stdout=f, stderr=f)
     host_queue.put(host)
