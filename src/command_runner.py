@@ -1,6 +1,5 @@
 import subprocess
 import argparse
-import thread
 import queue
 from multiprocessing.pool import ThreadPool
 
