@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     res_coll = []
     for command in commands:
-        res = p.apply_async(run_command, command)
+        res = pool.apply_async(run_command, command)
         res_coll.append(res)
 
     for res in res_coll:
