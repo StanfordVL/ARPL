@@ -17,6 +17,8 @@ Policy search methods in reinforcement learning have demonstrated success in sca
 ### Methods
 We work with a physical dynamical system model:
 
+$$ s_t $$
+
 \\[ s_{t+1} = f(s_t, a_t; \mu) + \nu \\]
 
 \\[ o_t = g(s_t) + \omega \\]
