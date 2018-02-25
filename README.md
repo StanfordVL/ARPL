@@ -1,4 +1,4 @@
-# Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations
+# Adversarially Robust Policy Learning: Active Construction of Physically-Plausible Perturbations
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yZ-gSsbbzh0?autoplay=0&showinfo=0&controls=2&modestbranding=1&rel=0&theme=light" frameborder="10" allowfullscreen></iframe>
 
@@ -36,7 +36,7 @@ We investigate the effects of these 3 different types of noise in 4 Mujoco envir
 ![fig5](https://stanfordvl.github.io/ARPL/figs/fig5.png)
 
 ### References
-- [**Adversarially Robust Policy Learning through Active construction of Physically-plausible Perturbations**](https://stanfordvl.github.io/ARPL/arpl_mzg_iros17.pdf).  
+- [**Adversarially Robust Policy Learning: Active Construction of Physically-Plausible Perturbations**](https://stanfordvl.github.io/ARPL/arpl_mzg_iros17.pdf).  
   Ajay Mandlekar\*, Yuke Zhu\*, Animesh Garg\*, Li Fei-Fei, Silvio Savarese (\* denotes equal contribution).  
   *IEEE International Conference on Intelligent Robotics and Systems, (IROS) 2017*
 
